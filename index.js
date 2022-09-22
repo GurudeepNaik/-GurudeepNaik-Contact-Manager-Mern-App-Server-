@@ -1,11 +1,17 @@
 const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
 const route = require("./routes/route.js");
-const app = express();
+const login = require("./routes/login");
+const register = require("./routes/register");
 
 const PORT = 8080;
-const mongoose = require("mongoose");
+const app = express();
+require("dotenv").config();
+
 mongoose.connect(
   "mongodb+srv://contactmanager:contactmanager@cluster0.jvlvlig.mongodb.net/Contact-Manager?retryWrites=true&w=majority",
+  { useNewUrlParser: true, useUnifiedTopology: true },
   (err) => {
     if (err) console.log(err);
     else console.log("Database Connected");
@@ -13,11 +19,10 @@ mongoose.connect(
 );
 
 app.use(express.json());
+app.use(bodyParser.json());
 app.use("/Contact", route);
-
-app.get("/", (req, res) => {
-  res.send("<h1>Hello World</h1>");
-});
+app.use("/login", login);
+app.use("/register", register);
 
 app.get("*", (req, res) => {
   res.status(404).json({
@@ -25,6 +30,7 @@ app.get("*", (req, res) => {
     message: "Invalid Path",
   });
 });
+
 app.listen(PORT, () => {
   console.log(`Server is up at http://localhost:${PORT}/`);
 });
